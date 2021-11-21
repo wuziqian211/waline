@@ -2,12 +2,24 @@ const Waline = require('@waline/vercel');
 
 module.exports = Waline({
   async preSave(comment) {
-    if (/^[0-9]+$/.test(comment.link)) {
-      if (comment.nick == '' || comment.nick == '匿名') {
-        const fetch = require('node-fetch');
-        await fetch(`https://api.wuziqian211.top/api/getbili?mid=${comment.link}`).then(resp => resp.json()).then(json => comment.nick = json.data.name);
-      }
+    var numExp = /^[0-9]+$/;
+    if (numExp.test(comment.link))
       comment.link = 'https://space.bilibili.com/' + comment.link;
+    if ((comment.nick == '' || comment.nick == '匿名') && comment.link.slice(0, 27) == 'https://space.bilibili.com/') {
+      var uid = comment.link.slice(27);
+      if (numExp.test(uid)) {
+        var res = true;
+        const fetch = require('node-fetch');
+        await fetch(`https://api.wuziqian211.top/api/getbili?mid=${uid}`).then(resp => resp.json()).then(function(json) {
+          if (json.code != 0) {
+            res = false;
+            return;
+          }
+          comment.nick = json.data.name;
+        });
+        if (!res)
+          return {errmsg: '您输入的UID对应用户可能不存在！\n如果用户存在，请重试。'};
+      }
     }
   },
 });
