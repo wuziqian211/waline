@@ -1,4 +1,5 @@
 const Waline = require('@waline/vercel');
+const fetch = require('node-fetch');
 
 module.exports = Waline({
   async preSave(comment) {
