@@ -3,7 +3,8 @@ const Waline = require('@waline/vercel');
 module.exports = Waline({
   async preSave(comment) {
     if (/^[0-9]+$/.test(comment.link)) {
-      return { errmsg: comment.nick };
+      if (!comment.nick || comment.nick == '' || comment.nick == '匿名')
+        fetch('https://api.wuziqian211.top/api/getbili?mid=' + comment.link).then(resp => resp.json()).then(json => comment.nick = json.data.name);
       comment.link = 'https://space.bilibili.com/' + comment.link;
     }
   },
