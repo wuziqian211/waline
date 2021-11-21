@@ -18,7 +18,7 @@ module.exports = Waline({
           comment.nick = json.data.name;
         });
         if (!res)
-          return {errmsg: '您输入的UID对应用户可能不存在！\n如果用户存在，请重试。'};
+          return {errmsg: '您输入的UID对应用户可能不存在哦(´；ω；`)如果存在，重试一下吧awa'};
       }
     }
   },
