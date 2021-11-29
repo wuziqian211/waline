@@ -10,7 +10,7 @@ module.exports = Waline({
       if (numExp.test(uid)) {
         var res = true;
         const fetch = require('node-fetch');
-        await fetch(`https://api.wuziqian211.top/api/getbili?mid=${uid}`).then(resp => resp.json()).then(function(json) {
+        await fetch(`https://api.wuziqian211.top/getbili.js?mid=${uid}`).then(resp => resp.json()).then(function(json) {
           if (json.code != 0) {
             res = false;
             return;
