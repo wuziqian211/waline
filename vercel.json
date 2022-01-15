@@ -2,10 +2,10 @@
   "name": "comment",
   "builds": [
     {
-      "src": "/index.js",
+      "src": "**/*.js",
       "use": "@vercel/node"
     }, {
-      "src": "/*",
+      "src": "**/*",
       "use": "@vercel/static"
     }
   ],
