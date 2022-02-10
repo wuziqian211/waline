@@ -15,4 +15,14 @@ module.exports = Waline({
       }
     }
   },
+  async avatarUrl(comment) {
+    if (comment.link && comment.link.slice(0, 27) === "https://space.bilibili.com/") {
+      let uid = comment.link.slice(27);
+      if (/^[0-9]+$/.test(uid)) {
+        return `https://api.wuziqian211.top/api/getbili?mid=${uid}`;
+      }
+    } else if (!comment.mail) {
+      return "https://api.wuziqian211.top/api/getbili";
+    }
+  }
 });
