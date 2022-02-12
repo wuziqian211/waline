@@ -2,7 +2,7 @@ const Waline = require('@waline/vercel');
 const fetch = require('node-fetch');
 module.exports = Waline({
   async preSave(comment) {
-    if (/^[0-9]+$/.test(comment.link)) {
+    if (/^\d+$/.test(comment.link)) {
       comment.link = 'https://space.bilibili.com/' + comment.link;
     }
     if ((!comment.nick || comment.nick === '匿名') && comment.link && comment.link.slice(0, 27) === 'https://space.bilibili.com/') {
