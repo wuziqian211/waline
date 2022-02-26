@@ -19,10 +19,10 @@ module.exports = Waline({
     if (comment.link && comment.link.slice(0, 27) === "https://space.bilibili.com/") {
       let uid = comment.link.slice(27);
       if (/^\d+$/.test(uid)) {
-        return `https://api.wuziqian211.top/api/getbili?mid=${uid}`;
+        return `https://api.wuziqian211.top/api/getuser?mid=${uid}`;
       }
     } else if (!comment.mail) {
-      return "https://api.wuziqian211.top/api/getbili";
+      return "https://api.wuziqian211.top/api/getuser";
     }
   }
 });
