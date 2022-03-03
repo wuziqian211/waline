@@ -5,7 +5,7 @@ module.exports = Waline({
     if (/^\d+$/.test(comment.link)) {
       comment.link = 'https://space.bilibili.com/' + comment.link;
     }
-    if ((!comment.nick || comment.nick === '匿名') && comment.link && comment.link.slice(0, 27) === 'https://space.bilibili.com/') {
+    if ((!comment.nick || comment.nick === '匿名') && comment.link?.slice(0, 27) === 'https://space.bilibili.com/') {
       let uid = comment.link.slice(27);
       if (/^\d+$/.test(uid)) {
         await fetch('https://api.bilibili.com/x/space/acc/info?mid=' + uid).then(resp => resp.json()).then(json => comment.nick = json.code === 0 ? json.data.name : '');
@@ -16,13 +16,13 @@ module.exports = Waline({
     }
   },
   async avatarUrl(comment) {
-    if (comment.link && comment.link.slice(0, 27) === "https://space.bilibili.com/") {
+    if (comment.link?.slice(0, 27) === 'https://space.bilibili.com/') {
       let uid = comment.link.slice(27);
       if (/^\d+$/.test(uid)) {
         return `https://api.wuziqian211.top/api/getuser?mid=${uid}`;
       }
     } else if (!comment.mail) {
-      return "https://api.wuziqian211.top/api/getuser";
+      return 'https://api.wuziqian211.top/api/getuser';
     }
   }
 });
