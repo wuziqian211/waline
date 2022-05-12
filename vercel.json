@@ -1,18 +1,9 @@
 {
   "name": "comment",
-  "builds": [
-    {
-      "src": "**/*.js",
-      "use": "@vercel/node"
-    }, {
-      "src": "**/*",
-      "use": "@vercel/static"
-    }
-  ],
   "rewrites": [
     {
       "source": "/(.*)",
-      "destination": "/index.js"
+      "destination": "/api/index.js"
     }
   ]
 }
