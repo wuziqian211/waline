@@ -1,6 +1,4 @@
-const Waline = require('@waline/vercel');
-const fetch = require('node-fetch');
-const md5 = require('md5');
+const Waline = require('@waline/vercel'), fetch = require('node-fetch'), md5 = require('md5');
 module.exports = Waline({
   async preSave(comment) {
     if (/^\d+$/.test(comment.link)) {
