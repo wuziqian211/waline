@@ -9,7 +9,7 @@ module.exports = Waline({
       if (json.code === 0) {
         comment.nick = json.data.name;
       } else {
-        return { errmsg: '您输入的 UID 对应的用户可能不存在哦(´；ω；`)如果存在，就重试一下吧 awa' };
+        return { errmsg: '您输入的 UID 对应的用户可能不存在哦 (´；ω；`) 如果存在，就重试一下吧 awa' };
       }
     }
   },
