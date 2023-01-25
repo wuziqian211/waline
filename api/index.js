@@ -15,12 +15,12 @@ module.exports = Waline({
   },
   async avatarUrl(comment) {
     if (/^https:\/\/space\.bilibili\.com\/\d+$/.test(comment.link)) {
-      return `https://api.wuziqian211.top/api/getuser?mid=${comment.link.slice(27)}`;
+      return `https://api.yumeharu.top/api/getuser?mid=${comment.link.slice(27)}`;
     } else if (comment.mail) {
       return `https://cravatar.cn/avatar/${md5(comment.mail)}?d=retro`;
     } else {
       const faces = ['1-22', '1-33', '2-22', '2-33', '3-22', '3-33', '4-22', '4-33', '5-22', '5-33', '6-33'];
-      return `https://api.wuziqian211.top/assets/${faces[Math.floor(Math.random() * 11)]}.jpg`;
+      return `https://api.yumeharu.top/assets/${faces[Math.floor(Math.random() * 11)]}.jpg`;
     }
   }
 });
