@@ -6,9 +6,10 @@ module.exports = Waline({
       comment.link = 'https://space.bilibili.com/' + comment.link;
     }
     if ((!comment.nick || comment.nick === '匿名') && /^https:\/\/space\.bilibili\.com\/\d+$/.test(comment.link)) {
-      const json = await (await fetch(`https://api.bilibili.com/x/space/acc/info?mid=${comment.link.slice(27)}`, { headers: { Origin: 'https://space.bilibili.com', Referer: 'https://space.bilibili.com/', 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/105.0.0.0 Safari/537.36' } })).json();
+      /* const json = await (await fetch(`https://api.bilibili.com/x/space/acc/info?mid=${comment.link.slice(27)}`, { headers: { Origin: 'https://space.bilibili.com', Referer: 'https://space.bilibili.com/', 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/105.0.0.0 Safari/537.36' } })).json(); */
+      const json = await (await fetch(`https://account.bilibili.com/api/member/getCardByMid?mid=${comment.link.slice(27)}`, { headers: { Origin: 'https://space.bilibili.com', Referer: 'https://space.bilibili.com/', 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/105.0.0.0 Safari/537.36' } })).json();
       if (json.code === 0) {
-        comment.nick = json.data.name;
+        comment.nick = json.card.name;
       } else {
         return { errmsg: '您输入的 UID 对应的用户可能不存在哦 (´；ω；`) 如果存在，就重试一下吧 awa' };
       }
