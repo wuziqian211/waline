@@ -1,13 +1,14 @@
 'use strict';
+
 const Waline = require('@waline/vercel'), md5 = require('md5');
 module.exports = Waline({
   async preSave(comment) {
-    if (/^\d+$/.test(comment.link)) {
-      comment.link = 'https://space.bilibili.com/' + comment.link;
+    if (/^\d+$/.test(comment.link.trim())) {
+      comment.link = 'https://space.bilibili.com/' + comment.link.trim();
     }
-    if ((!comment.nick || comment.nick === '匿名') && /^https:\/\/space\.bilibili\.com\/\d+$/.test(comment.link)) {
-      /* const json = await (await fetch(`https://api.bilibili.com/x/space/acc/info?mid=${comment.link.slice(27)}`, { headers: { Origin: 'https://space.bilibili.com', Referer: 'https://space.bilibili.com/', 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/105.0.0.0 Safari/537.36' } })).json(); */
-      const json = await (await fetch(`https://account.bilibili.com/api/member/getCardByMid?mid=${comment.link.slice(27)}`, { headers: { Origin: 'https://space.bilibili.com', Referer: 'https://space.bilibili.com/', 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/105.0.0.0 Safari/537.36' } })).json();
+    if ((!comment.nick.trim() || comment.nick === '匿名') && /^(?:(?:https?:)?\/\/)?space\.bilibili\.com\/\d+(?:[\?\/#].*)?$/i.test(comment.link.trim())) {
+      comment.link = comment.link.trim().replace(/^(?:(?:https?:)?\/\/)?space\.bilibili\.com\/(\d+(?:[\?\/#].*)?)$/i, 'https://space.bilibili.com/$1');
+      const json = await (await fetch(`https://account.bilibili.com/api/member/getCardByMid?mid=${comment.link.trim().replace(/^(?:(?:https?:)?\/\/)?space\.bilibili\.com\/(\d+)(?:[\?\/#].*)?$/i, '$1')}`, { headers: { Origin: 'https://space.bilibili.com', Referer: 'https://space.bilibili.com/', 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36' } })).json();
       if (json.code === 0) {
         comment.nick = json.card.name;
       } else {
@@ -16,8 +17,8 @@ module.exports = Waline({
     }
   },
   async avatarUrl(comment) {
-    if (/^https:\/\/space\.bilibili\.com\/\d+$/.test(comment.link)) {
-      return `https://api.yumeharu.top/api/getuser?mid=${comment.link.slice(27)}`;
+    if (/^(?:(?:https?:)?\/\/)?space\.bilibili\.com\/\d+(?:[\?\/#].*)?$/i.test(comment.link.trim())) {
+      return `https://api.yumeharu.top/api/getuser?mid=${comment.link.trim().replace(/^(?:(?:https?:)?\/\/)?space\.bilibili\.com\/(\d+)(?:[\?\/#].*)?$/i, '$1')}&type=avatar`;
     } else if (comment.mail) {
       return `https://cravatar.cn/avatar/${md5(comment.mail)}?d=retro`;
     } else {
