@@ -3,6 +3,7 @@
 const Waline = require('@waline/vercel'), md5 = require('md5');
 module.exports = Waline({
   plugins: [],
+/*
   async preSave(comment) {
     if (/^\d+$/.test(comment.link.trim())) {
       comment.link = 'https://space.bilibili.com/' + comment.link.trim();
@@ -30,4 +31,5 @@ module.exports = Waline({
       return `/images/default-faces%26face-icons/${faces[Math.floor(Math.random() * 11)]}.jpg`;
     }
   }
+*/
 });
