@@ -1,3 +1,5 @@
+'use strict';
+
 const Waline = require('@waline/vercel'), md5 = require('md5');
 module.exports = Waline({
   plugins: [],
