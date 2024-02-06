@@ -2,6 +2,7 @@
 
 const Waline = require('@waline/vercel'), md5 = require('md5');
 module.exports = Waline({
+  plugins: [],
   async preSave(comment) {
     if (/^\d+$/.test(comment.link.trim())) {
       comment.link = 'https://space.bilibili.com/' + comment.link.trim();
@@ -18,8 +19,12 @@ module.exports = Waline({
   async avatarUrl(comment) {
     if (/^(?:(?:https?:)?\/\/)?space\.bilibili\.com\/\d+(?:[\?\/#].*)?$/i.test(comment.link.trim())) {
       return `https://api.yumeharu.top/api/getuser?mid=${comment.link.trim().replace(/^(?:(?:https?:)?\/\/)?space\.bilibili\.com\/(\d+)(?:[\?\/#].*)?$/i, '$1')}&type=avatar_redirect`;
-    } else if (comment.mail) {
-      return `https://cravatar.cn/avatar/${md5(comment.mail)}?d=retro`;
+    } else if (comment.mail.trim()) {
+      if (/^\d+@qq\.com$/i.test(comment.mail.trim())) {
+        return `https://q1.qlogo.cn/headimg_dl?dst_uin=${comment.mail.trim().replace(/^(\d+)@qq\.com$/i, '$1')}&spec=4`;
+      } else {
+        return `https://cravatar.cn/avatar/${md5(comment.mail)}?d=retro`;
+      }
     } else {
       const faces = ['1-22', '1-33', '2-22', '2-33', '3-22', '3-33', '4-22', '4-33', '5-22', '5-33', '6-33'];
       return `/images/default-faces%26face-icons/${faces[Math.floor(Math.random() * 11)]}.jpg`;
