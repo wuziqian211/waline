@@ -1,6 +1,6 @@
 'use strict';
 
-const Waline = require('@waline/vercel'), md5 = require('md5');
+const Waline = require('@waline/vercel'), crypto = require('node:crypto'), md5 = require('md5'), { kv } = require('@vercel/kv');
 module.exports = Waline({
   plugins: [],
   async preSave(comment) {
@@ -15,13 +15,31 @@ module.exports = Waline({
         return { errmsg: '您输入的 UID 对应的用户可能不存在哦 (´；ω；`) 如果存在，就重试一下吧 awa' };
       }
     }
+    if (/^\d+@qq\.com$/i.test(comment.mail.trim())) {
+      const qqNumber = comment.mail.trim().replace(/^(\d+)@qq\.com$/i, '$1'),
+        hashes = await kv.get('hashes');
+      if (!hashes.some(h => h.s === qqNumber)) {
+        hashes.push({ s: qqNumber, h: crypto.randomUUID() });
+        await kv.set('hashes', hashes);
+      }
+    }
   },
   async avatarUrl(comment) {
     if (/^(?:(?:https?:)?\/\/)?space\.bilibili\.com\/\d+(?:[\?\/#].*)?$/i.test(comment.link.trim())) {
       return `https://api.yumeharu.top/api/getuser?mid=${comment.link.trim().replace(/^(?:(?:https?:)?\/\/)?space\.bilibili\.com\/(\d+)(?:[\?\/#].*)?$/i, '$1')}&type=avatar_redirect`;
     } else if (comment.mail.trim()) {
       if (/^\d+@qq\.com$/i.test(comment.mail.trim())) {
-        return `https://q1.qlogo.cn/headimg_dl?dst_uin=${comment.mail.trim().replace(/^(\d+)@qq\.com$/i, '$1')}&spec=4`;
+        const qqNumber = comment.mail.trim().replace(/^(\d+)@qq\.com$/i, '$1'),
+          hashes = await kv.get('hashes');
+        const hash = hashes.find(h => h.s === qqNumber);
+        if (hash) {
+          return `https://api.yumeharu.top/api/modules?id=qmimg&h=${hash.h}`;
+        } else {
+          const h = crypto.randomUUID();
+          hashes.push({ s: qqNumber, h });
+          await kv.set('hashes', hashes);
+          return `https://api.yumeharu.top/api/modules?id=qmimg&h=${h}`;
+        }
       } else {
         return `https://cravatar.cn/avatar/${md5(comment.mail)}?d=retro`;
       }
