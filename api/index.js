@@ -45,7 +45,7 @@ module.exports = Waline({
       }
     } else {
       const faces = ['1-22', '1-33', '2-22', '2-33', '3-22', '3-33', '4-22', '4-33', '5-22', '5-33', '6-33'];
-      return `/images/default-faces%26face-icons/${faces[Math.floor(Math.random() * 11)]}.jpg`;
+      return `/images/default-faces%26face-icons/${faces[Math.floor(Math.random() * faces.length)]}.jpg`;
     }
   }
 });
