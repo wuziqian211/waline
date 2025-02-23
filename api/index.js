@@ -1,15 +1,21 @@
 'use strict';
 
-const Waline = require('@waline/vercel'), crypto = require('node:crypto'), md5 = require('md5'), { kv } = require('@vercel/kv');
+const Waline = require('@waline/vercel'),
+      crypto = require('node:crypto'),
+      md5 = require('md5'),
+      { waitUntil } = require('@vercel/functions'),
+      { kv } = require('@vercel/kv');
+
 module.exports = Waline({
   plugins: [],
   async preSave(comment) { // 在保存评论数据前
     if (comment.link && /^\d+$/.test(comment.link.trim())) { // 若输入的链接为纯数字，就将其视为 B 站 UID，并将链接修改为 B 站个人空间网址
       comment.link = 'https://space.bilibili.com/' + comment.link.trim();
     }
-    if (comment.link && (!comment.nick?.trim() || comment.nick === '匿名') &&
-        /^(?:(?:https?:)?\/\/)?space\.bilibili\.com\/\d+(?:[\?\/#].*)?$/i.test(comment.link.trim())) { // 若没有输入昵称，并且链接为 B 站个人空间网址，就将昵称设置为 UID 对应的 B 站用户的昵称
-      const json = await (await fetch(`https://account.bilibili.com/api/member/getCardByMid?mid=${comment.link.trim().replace(/^(?:(?:https?:)?\/\/)?space\.bilibili\.com\/(\d+)(?:[\?\/#].*)?$/i, '$1')}`, { headers: { Origin: 'https://space.bilibili.com', Referer: 'https://space.bilibili.com/', 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36' } })).json();
+    if (comment.link && (!comment.nick?.trim() || comment.nick === '匿名')
+      && /^(?:(?:https?:)?\/\/)?space\.bilibili\.com\/\d+(?:[\?\/#].*)?$/i.test(comment.link.trim())) { // 若没有输入昵称，并且链接为 B 站个人空间网址，就将昵称设置为 UID 对应的 B 站用户的昵称
+      const json = await (await fetch(`https://account.bilibili.com/api/member/getCardByMid?mid=${comment.link.trim().replace(/^(?:(?:https?:)?\/\/)?space\.bilibili\.com\/(\d+)(?:[\?\/#].*)?$/i, '$1')}`,
+        { headers: { Origin: 'https://space.bilibili.com', Referer: 'https://space.bilibili.com/', 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36' } })).json();
       if (json.code === 0) { // 用户信息获取成功
         comment.nick = json.card.name;
       } else {
@@ -22,7 +28,7 @@ module.exports = Waline({
             hashes = await kv.get('hashes');
       if (!hashes.some(h => h.s === qqNumber)) { // 之前没有存储与该 QQ 号对应的 UUID
         hashes.push({ s: qqNumber, h: crypto.randomUUID() }); // 生成一个与 QQ 号对应的 UUID
-        await kv.set('hashes', hashes);
+        waitUntil(kv.set('hashes', hashes));
       }
     }
 
@@ -41,7 +47,7 @@ module.exports = Waline({
         } else {
           const h = crypto.randomUUID();
           hashes.push({ s: qqNumber, h });
-          await kv.set('hashes', hashes);
+          waitUntil(kv.set('hashes', hashes));
           return `https://api.yumeharu.top/api/modules?id=qmimg&h=${h}`;
         }
       } else { // 邮箱不为 QQ 邮箱，返回 Gravatar 头像
