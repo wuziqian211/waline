@@ -3,8 +3,7 @@
   "version": "0.0.1",
   "private": true,
   "dependencies": {
-    "@vercel/functions": "latest",
-    "@vercel/kv": "latest",
+    "@upstash/redis": "latest",
     "@waline/vercel": "latest"
   }
 }
