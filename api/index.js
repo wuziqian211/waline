@@ -4,7 +4,7 @@ const Waline = require('@waline/vercel'),
       crypto = require('node:crypto'),
       md5 = require('md5'),
       { waitUntil } = require('@vercel/functions'),
-      { kv } = require('@vercel/kv');
+      { Redis } = require('@upstash/redis');
 
 module.exports = Waline({
   plugins: [],
@@ -24,11 +24,11 @@ module.exports = Waline({
     }
 
     if (comment.mail && /^\d+@qq\.com$/i.test(comment.mail.trim())) { // 若输入的邮箱为 QQ 邮箱，就随机生成一个与 QQ 号对应的 UUID
-      const qqNumber = comment.mail.trim().replace(/^(\d+)@qq\.com$/i, '$1'),
-            hashes = await kv.get('hashes');
+      const qqNumber = comment.mail.trim().replace(/^(\d+)@qq\.com$/i, '$1'), redis = Redis.fromEnv(),
+            hashes = await redis.get('hashes');
       if (!hashes.some(h => h.s === qqNumber)) { // 之前没有存储与该 QQ 号对应的 UUID
-        hashes.push({ s: qqNumber, h: crypto.randomUUID() }); // 生成一个与 QQ 号对应的 UUID
-        waitUntil(kv.set('hashes', hashes));
+        hashes.push({ h: crypto.randomUUID(), s: qqNumber }); // 生成一个与 QQ 号对应的 UUID
+        waitUntil(redis.set('hashes', hashes));
       }
     }
 
@@ -39,15 +39,15 @@ module.exports = Waline({
       return `https://api.yumeharu.top/api/getuser?mid=${comment.link.trim().replace(/^(?:(?:https?:)?\/\/)?space\.bilibili\.com\/(\d+)(?:[\?\/#].*)?$/i, '$1')}&type=avatar_redirect`;
     } else if (comment.mail?.trim()) { // 输入了邮箱
       if (/^\d+@qq\.com$/i.test(comment.mail.trim())) { // 邮箱为 QQ 邮箱，返回 QQ 号对应的用户的头像
-        const qqNumber = comment.mail.trim().replace(/^(\d+)@qq\.com$/i, '$1'),
-              hashes = await kv.get('hashes');
+        const qqNumber = comment.mail.trim().replace(/^(\d+)@qq\.com$/i, '$1'), redis = Redis.fromEnv(),
+              hashes = await redis.get('hashes');
         const hash = hashes.find(h => h.s === qqNumber);
         if (hash) {
           return `https://api.yumeharu.top/api/modules?id=qmimg&h=${hash.h}`;
         } else {
           const h = crypto.randomUUID();
-          hashes.push({ s: qqNumber, h });
-          waitUntil(kv.set('hashes', hashes));
+          hashes.push({ h, s: qqNumber });
+          await redis.set('hashes', hashes);
           return `https://api.yumeharu.top/api/modules?id=qmimg&h=${h}`;
         }
       } else { // 邮箱不为 QQ 邮箱，返回 Gravatar 头像
