@@ -32,6 +32,7 @@ module.exports = Waline({
         const qqNumber = comment.mail.trim().replace(/^(\d+)@qq\.com$/i, '$1'), hash = crypto.randomUUID(),
               redis = Redis.fromEnv();
         await redis.hset('qmHashes', { [hash]: qqNumber });
+        await redis.exec(['HEXPIRE', 'qmHashes', 600, 'LT', 'FIELDS', 1, hash]); // 设置过期时间
         return `https://api.yumeharu.top/api/modules?id=qmimg&h=${hash}`;
       } else { // 邮箱不为 QQ 邮箱，返回 Gravatar 头像
         return `https://cravatar.cn/avatar/${md5(comment.mail)}?d=retro`;
