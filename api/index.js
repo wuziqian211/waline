@@ -14,10 +14,10 @@ module.exports = Waline({
     }
     if (comment.link && (!comment.nick?.trim() || comment.nick === '匿名')
       && /^(?:(?:https?:)?\/\/)?space\.bilibili\.com\/\d+(?:[\?\/#].*)?$/i.test(comment.link.trim())) { // 若没有输入昵称，并且链接为 B 站个人空间网址，就将昵称设置为 UID 对应的 B 站用户的昵称
-      const json = await (await fetch(`https://account.bilibili.com/api/member/getCardByMid?mid=${comment.link.trim().replace(/^(?:(?:https?:)?\/\/)?space\.bilibili\.com\/(\d+)(?:[\?\/#].*)?$/i, '$1')}`,
+      const json = await (await fetch(`https://api.bilibili.com/x/web-interface/card?mid=${comment.link.trim().replace(/^(?:(?:https?:)?\/\/)?space\.bilibili\.com\/(\d+)(?:[\?\/#].*)?$/i, '$1')}`,
         { headers: { Origin: 'https://space.bilibili.com', Referer: 'https://space.bilibili.com/', 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36' } })).json();
       if (json.code === 0) { // 用户信息获取成功
-        comment.nick = json.card.name;
+        comment.nick = json.data.card.name;
       } else {
         return { errmsg: '您输入的 UID 对应的用户可能不存在哦 (´；ω；`) 如果存在，就重试一下吧 awa' };
       }
