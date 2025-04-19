@@ -4,8 +4,6 @@ import { waitUntil } from '@vercel/functions';
 import { Redis } from '@upstash/redis';
 import Waline from '@waline/vercel';
 
-export const config = { runtime: 'edge' };
-
 export default Waline({
   plugins: [],
   async preSave(comment) { // 在保存评论数据前
