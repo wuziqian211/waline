@@ -13,7 +13,7 @@ export default Waline({
     if (comment.link && (!comment.nick?.trim() || comment.nick === '匿名')
       && /^(?:(?:https?:)?\/\/)?space\.bilibili\.com\/\d+(?:[\?\/#].*)?$/i.test(comment.link.trim())) { // 若没有输入昵称，并且链接为 B 站个人空间网址，就将昵称设置为对应的 B 站用户的昵称
       const json = await (await fetch(`https://api.bilibili.com/x/web-interface/card?mid=${comment.link.trim().replace(/^(?:(?:https?:)?\/\/)?space\.bilibili\.com\/(\d+)(?:[\?\/#].*)?$/i, '$1')}`,
-        { headers: { Origin: 'https://space.bilibili.com', Referer: 'https://space.bilibili.com/', 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36' } })).json();
+        { headers: { Origin: 'https://space.bilibili.com', Referer: 'https://space.bilibili.com/', 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36' } })).json();
       if (json.code === 0) { // 用户信息获取成功
         comment.nick = json.data.card.name;
       } else {
@@ -21,8 +21,8 @@ export default Waline({
       }
     }
 
-    if (comment.mail && /^\d+@qq\.com$/i.test(comment.mail.trim())) { // 若输入的邮箱为 QQ 邮箱，就随机生成一个与 QQ 号对应的 UUID
-      const qqNumber = comment.mail.trim().replace(/^(\d+)@qq\.com$/i, '$1'), redis = Redis.fromEnv(),
+    if (comment.mail && /^\d{5,}@qq\.com$/i.test(comment.mail.trim())) { // 若输入的邮箱为 QQ 邮箱，就随机生成一个与 QQ 号对应的 UUID
+      const qqNumber = comment.mail.trim().replace(/^(\d{5,})@qq\.com$/i, '$1'), redis = Redis.fromEnv(),
             hashes = await redis.get('hashes');
       if (!hashes.some(h => h.s === qqNumber)) { // 之前没有存储与该 QQ 号对应的 UUID
         hashes.push({ h: crypto.randomUUID(), s: qqNumber }); // 生成一个与 QQ 号对应的 UUID
@@ -36,8 +36,8 @@ export default Waline({
     if (comment.link && /^(?:(?:https?:)?\/\/)?space\.bilibili\.com\/\d+(?:[\?\/#].*)?$/i.test(comment.link.trim())) { // 输入的链接为 B 站个人空间网址，返回 UID 对应的 B 站用户的头像
       return `https://api.yumeharu.top/api/getuser?mid=${comment.link.trim().replace(/^(?:(?:https?:)?\/\/)?space\.bilibili\.com\/(\d+)(?:[\?\/#].*)?$/i, '$1')}&type=avatar_redirect`;
     } else if (comment.mail?.trim()) { // 输入了邮箱
-      if (/^\d+@qq\.com$/i.test(comment.mail.trim())) { // 邮箱为 QQ 邮箱，返回 QQ 号对应的用户的头像
-        const qqNumber = comment.mail.trim().replace(/^(\d+)@qq\.com$/i, '$1'), redis = Redis.fromEnv(),
+      if (/^\d{5,}@qq\.com$/i.test(comment.mail.trim())) { // 邮箱为 QQ 邮箱，返回 QQ 号对应的用户的头像
+        const qqNumber = comment.mail.trim().replace(/^(\d{5,})@qq\.com$/i, '$1'), redis = Redis.fromEnv(),
               hashes = await redis.get('hashes');
         const hash = hashes.find(h => h.s === qqNumber);
         if (hash) {
