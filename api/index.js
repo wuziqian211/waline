@@ -30,7 +30,7 @@ export default Waline({
       }
     }
 
-    comment.comment = comment.comment.replace(/<img class="wl-emoji" src="\/images\/emote\/([^"]+)" alt="([^."]+)(?:\.(?:gif|png))?">/g, '<img class="wl-emoji" src="/images/emote/$1" alt="[$2]" title="$2">'); // 去除表情的替代文本的扩展名，添加中括号
+    comment.comment = comment.comment.replace(/<img class="wl-emoji" src="\/assets\/images\/emote\/([^"]+)" alt="([^."]+)(?:\.(?:gif|png))?">/g, '<img class="wl-emoji" src="/assets/images/emote/$1" alt="[$2]" title="$2">'); // 去除表情的替代文本的扩展名，添加中括号
   },
   async avatarUrl(comment) { // 在获取头像地址时
     if (comment.link && /^(?:(?:https?:)?\/\/)?space\.bilibili\.com\/\d+(?:[\?\/#].*)?$/i.test(comment.link.trim())) { // 输入的链接为 B 站个人空间网址，返回 UID 对应的 B 站用户的头像
@@ -53,7 +53,7 @@ export default Waline({
       }
     } else { // 返回随机 B 站头像
       const faces = ['1-22', '1-33', '2-22', '2-33', '3-22', '3-33', '4-22', '4-33', '5-22', '5-33', '6-33'];
-      return `/images/default-faces%26face-icons/${faces[Math.floor(Math.random() * faces.length)]}.jpg`;
+      return `/assets/images/default-faces%26face-icons/${faces[Math.floor(Math.random() * faces.length)]}.jpg`;
     }
   }
 });
